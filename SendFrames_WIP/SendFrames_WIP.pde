@@ -31,15 +31,15 @@ Boolean newNNData = false;
 String[] myNNData = new String[3];
 int myNNDataCounter = 0;
 final int numCharsPerLine = 26;
-final boolean PRINT = true;
+final boolean PRINT = false;
 final int WIDTH = 297*2*2;
 final int HEIGHT = 420*2;
 final int FONTSIZE = 30;
-final int CHARCOUNT = 150;
+final int CHARCOUNT = 50;
 final int[] CHARCOUNTS = {CHARCOUNT,(int)(CHARCOUNT*1.4),(int)(CHARCOUNT*1.4*1.4)};
 final int[] FONTSIZES = {FONTSIZE,(int)(FONTSIZE*1.4),(int)(FONTSIZE*1.4*1.4)};
 final int[] STROKES = {1,2,4};
-final String[] SCRIPTS = {"irvines.t7_cpu.t7","queer.t7_cpu.t7","queer.t7_cpu.t7"};
+final String[] SCRIPTS = {"irvines.t7_cpu.t7","queer.t7_cpu.t7","witch.t7_cpu.t7"};
 PImage img;
 PFont myBookfont;
 int pageNumber = 1; 
@@ -87,7 +87,7 @@ void doPdfNormal(String text) {
   pdfcanvas.fill(0);
   pdfcanvas.text(Integer.toString(pageNumber),550,810,595,842);
   pdfcanvas.textSize(12);
-  pdfcanvas.text(text, 60,60, 530,780);
+  pdfcanvas.text(text, 60,105, 495,780);
   pdfcanvas.dispose();
   pdfcanvas.endDraw();
   //image(pdfcanvas,0,0);
@@ -101,10 +101,10 @@ void doPdfCover(String text) {
   pdfcanvas.textFont(myBookfont);
   pdfcanvas.background(250);
   pdfcanvas.stroke(150);
-  pdfcanvas.line(25, 810, 570, 810);
+  pdfcanvas.line(25, 800, 570, 800);
   pdfcanvas.textSize(10);
   pdfcanvas.fill(0);
-  pdfcanvas.text(Integer.toString(pageNumber),550,820,595,890);
+  pdfcanvas.text(Integer.toString(pageNumber),550,810,595,842);
   pdfcanvas.textSize(28);
   pdfcanvas.textAlign(CENTER);
   pdfcanvas.text("Chapter "+(pageNumber / 10 +1), 0,175, 595,780);
@@ -118,13 +118,12 @@ void doPdfCover(String text) {
 
 void createAndPrintPage(String text) {
   if (!PRINT) return;
-  doPdfCover(text);
-  /*
+  
   if (pageNumber%10==1) 
     doPdfCover(text);
   else
     doPdfNormal(text);
-  */
+  
   try {
     printFile();
   }catch (Exception e) {
@@ -178,16 +177,19 @@ void draw() {
   if (!newNNData)   
     drawInput();
   else {
-    if (myNNDataCounter>myNNData[0].length()) {
+    //Charcounts[2] is the largers *2 per number of pages
+    if (myNNDataCounter>=CHARCOUNTS[2]*2) {
         //we reached the end of datas
         newNNData=!newNNData;
         noLoop();
         myNNDataCounter = 0;
+        pageNumber+=2;
         return;
     }
-    if (myNNDataCounter<=myNNData[0].lastIndexOf(".")) drawCanvas(myNNData[0].substring(0,myNNDataCounter),0);
-    if (myNNDataCounter<=myNNData[1].lastIndexOf(".")) drawCanvas(myNNData[1].substring(0,myNNDataCounter),1);
-    if (myNNDataCounter<=myNNData[2].lastIndexOf(".")) drawCanvas(myNNData[2].substring(0,myNNDataCounter),2);
+    System.out.println(""+myNNDataCounter);
+    if (myNNDataCounter<=myNNData[0].lastIndexOf(".") && myNNDataCounter<=CHARCOUNTS[0]*2) drawCanvas(myNNData[0].substring(0,myNNDataCounter),0);
+    if (myNNDataCounter<=myNNData[1].lastIndexOf(".") && myNNDataCounter<=CHARCOUNTS[1]*2) drawCanvas(myNNData[1].substring(0,myNNDataCounter),1);
+    if (myNNDataCounter<=myNNData[2].lastIndexOf(".") && myNNDataCounter<=CHARCOUNTS[2]*2) drawCanvas(myNNData[2].substring(0,myNNDataCounter),2);
     myNNDataCounter+=1;
   }
 
@@ -200,7 +202,7 @@ void drawInput() {
   canvas.beginDraw(); // sets up the buffer
   canvas.background(250);
   canvas.textSize(40);
-  canvas.text(myText, 30,30, width-60,height-100);
+  canvas.text(myText, 30,30, width/2-60,height-100);
   canvas.strokeWeight(STROKES[1]);
   canvas.line(30, 800, width/2-30, 800);
   canvas.line(width/2+30, 800, width-60, 800);
@@ -230,10 +232,10 @@ void drawCanvas(String text,int canvasNumber){
   //canvas.image(img,50,50,100,100);
   canvas.textSize(FONTSIZES[canvasNumber]);
   //canvas.text(text, 30,30, width-60,height-60);
-  if (text.length()<=CHARCOUNTS[canvasNumber]) canvas.text(text, 30,30, width/2-30,height-100);
+  if (text.length()<=CHARCOUNTS[canvasNumber]) canvas.text(text, 30,30, width/2-60,height-100);
   else {
-    canvas.text(text.substring(0,CHARCOUNTS[canvasNumber]), 30,30, width/2-30,height-100);
-    canvas.text(text.substring(CHARCOUNTS[canvasNumber],text.length()), width/2+30,30, width/2-60,height-100);
+    canvas.text(text.substring(0,CHARCOUNTS[canvasNumber]), 30,30, width/2-60,height-100);
+    canvas.text(text.substring(CHARCOUNTS[canvasNumber],text.length()), width/2+30, 30, width/2-90,height-100);
     }
   
   canvas.endDraw(); 
@@ -247,16 +249,16 @@ void drawCanvas(String text,int canvasNumber){
 void keyPressed() { //everytime key is pressed, the value is stored within the function
   //we are still processing data from last inout ignore else
   if (newNNData) return;
-
   
   if (keyCode == BACKSPACE) { //checks if backspace was pressed
     if (myText.length() > 0) { 
       myText = myText.substring(0, myText.length()-1); 
     }
+    loop();
+
   } 
   else if (keyCode == DELETE) { 
     myText = ""; 
-    loop();
   } 
   
   else if (keyCode != SHIFT) { 
@@ -271,15 +273,14 @@ void keyPressed() { //everytime key is pressed, the value is stored within the f
      if (myText.equals("")) return;
      //input = myText; //inputs values become those of myText
        
-       for (int i=0;i<1;i++) {
+       for (int i=0;i<3;i++) {
          String nntext = runNNScript("\""+myText+"\"",i); 
          myNNData[i] = nntext;
-         createAndPrintPage(nntext);
+         if (i==0) createAndPrintPage(nntext);
      }
 
        
        newNNData=true;
-       pageNumber+=2;
 
 
       myText = ""; //myText is cleared of values and ready for new inputs
