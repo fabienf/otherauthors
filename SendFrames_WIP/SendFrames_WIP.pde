@@ -35,7 +35,7 @@ final boolean PRINT = false;
 final int WIDTH = 297*2*2;
 final int HEIGHT = 420*2;
 final int FONTSIZE = 30;
-final int CHARCOUNT = 50;
+final int CHARCOUNT = 150;
 final int[] CHARCOUNTS = {CHARCOUNT,(int)(CHARCOUNT*1.4),(int)(CHARCOUNT*1.4*1.4)};
 final int[] FONTSIZES = {FONTSIZE,(int)(FONTSIZE*1.4),(int)(FONTSIZE*1.4*1.4)};
 final int[] STROKES = {1,2,4};
@@ -161,7 +161,7 @@ String runNNScript(String primeText,int nnScript) {
     Process p = new ProcessBuilder(args).start();
     BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream()));
     //throw away crap senteces at the starts
-    in.readLine();in.readLine();in.readLine();in.readLine();in.readLine();
+    //in.readLine();in.readLine();in.readLine();in.readLine();
     while ((line = in.readLine()) != null) {
        println(line);
        out+=line;
@@ -186,10 +186,15 @@ void draw() {
         pageNumber+=2;
         return;
     }
-    System.out.println(""+myNNDataCounter);
-    if (myNNDataCounter<=myNNData[0].lastIndexOf(".") && myNNDataCounter<=CHARCOUNTS[0]*2) drawCanvas(myNNData[0].substring(0,myNNDataCounter),0);
-    if (myNNDataCounter<=myNNData[1].lastIndexOf(".") && myNNDataCounter<=CHARCOUNTS[1]*2) drawCanvas(myNNData[1].substring(0,myNNDataCounter),1);
-    if (myNNDataCounter<=myNNData[2].lastIndexOf(".") && myNNDataCounter<=CHARCOUNTS[2]*2) drawCanvas(myNNData[2].substring(0,myNNDataCounter),2);
+    //System.out.println(""+myNNDataCounter);
+    if (myNNDataCounter <= (myNNData[0].contains(".") ? myNNData[0].lastIndexOf(".") : CHARCOUNTS[0]*2) && myNNDataCounter<=CHARCOUNTS[0]*2 && myNNDataCounter<myNNData[0].length()) 
+      drawCanvas(myNNData[0].substring(0,myNNDataCounter),0);
+    //System.out.println(myNNData[1]);
+    if (myNNDataCounter <= (myNNData[1].contains(".") ? myNNData[1].lastIndexOf(".") : CHARCOUNTS[1]*2) && myNNDataCounter<=CHARCOUNTS[1]*2 && myNNDataCounter<myNNData[1].length()) 
+      drawCanvas(myNNData[1].substring(0,myNNDataCounter),1);
+    
+    if (myNNDataCounter <= (myNNData[2].contains(".") ? myNNData[2].lastIndexOf(".") : CHARCOUNTS[2]*2) && myNNDataCounter<=CHARCOUNTS[2]*2 && myNNDataCounter<myNNData[2].length()) 
+      drawCanvas(myNNData[2].substring(0,myNNDataCounter),2);
     myNNDataCounter+=1;
   }
 
@@ -275,8 +280,10 @@ void keyPressed() { //everytime key is pressed, the value is stored within the f
        
        for (int i=0;i<3;i++) {
          String nntext = runNNScript("\""+myText+"\"",i); 
+         System.out.println(""+i +"   "+nntext.length());
+         System.out.println(""+i +"   "+nntext);
          myNNData[i] = nntext;
-         if (i==0) createAndPrintPage(nntext);
+         createAndPrintPage(nntext);
      }
 
        
