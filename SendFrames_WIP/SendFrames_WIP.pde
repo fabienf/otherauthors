@@ -39,7 +39,7 @@ final int CHARCOUNT = 150;
 final int[] CHARCOUNTS = {CHARCOUNT,(int)(CHARCOUNT*1.4),(int)(CHARCOUNT*1.4*1.4)};
 final int[] FONTSIZES = {FONTSIZE,(int)(FONTSIZE*1.4),(int)(FONTSIZE*1.4*1.4)};
 final int[] STROKES = {1,2,4};
-final String[] SCRIPTS = {"irvines.t7_cpu.t7","queer.t7_cpu.t7","witch.t7_cpu.t7"};
+final String[] SCRIPTS = {"irvines.t7_cpu.t7","witch.t7_cpu.t7","queer7.t7_cpu.t7"};
 PImage img;
 PFont myBookfont;
 int pageNumber = 1; 
@@ -157,18 +157,29 @@ String runNNScript(String primeText,int nnScript) {
   String out ="";
   try {
     String line;
-    String[] args = new String[] {"/bin/bash","-c","Projects/dwd/main.sh "+primeText+" "+ SCRIPTS[nnScript]};
+    String[] args = new String[] {"/bin/bash","-c","/Users/fabienflorek/Projects/dwd/main.sh "+primeText+" "+ SCRIPTS[nnScript]};
     Process p = new ProcessBuilder(args).start();
+    p.waitFor();
+    if (nnScript==2) {
+    p.waitFor();
+    delay(1000);
+    }
+    //FileReader fr = new FileReader("/Users/fabienflorek/Projects/dwd/temp.txt"); //<>//
     BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream()));
+    //BufferedReader in = new BufferedReader(fr);
     //throw away crap senteces at the starts
     //in.readLine();in.readLine();in.readLine();in.readLine();
     while ((line = in.readLine()) != null) {
        println(line);
        out+=line;
     }
+    in.close();
+     
   } catch (Exception err) {
     err.printStackTrace();
+    System.out.println(err);
   }
+  out=out.replaceAll("\n","").replaceAll("\t","");
   return out;
 }
 
@@ -284,6 +295,7 @@ void keyPressed() { //everytime key is pressed, the value is stored within the f
          System.out.println(""+i +"   "+nntext);
          myNNData[i] = nntext;
          createAndPrintPage(nntext);
+         delay(1000);
      }
 
        
